@@ -1,5 +1,7 @@
 import React, { Component, lazy, Suspense } from 'react';
+import ReactRouterPropTypes from 'react-router-prop-types';
 import SearchForm from '../components/searchForm/SearchForm';
+import getSearchFromLocation from '../helpers/getSearch';
 import * as itemsAPI from '../services/movies-api';
 
 const AsyncItemList = lazy(() => import('../components/itemList/ItemList' /* webpackChunkNane: "item-list-page" */));
@@ -8,6 +10,18 @@ export default class MoviePage extends Component {
     items: [],
     searchQuery: '',
   };
+
+  static propTypes = {
+    location: ReactRouterPropTypes.location.isRequired,
+  };
+
+  componentDidMount() {
+    const { location } = this.props;
+
+    if (location.search !== '') {
+      itemsAPI.fetchMovies(getSearchFromLocation(location)).then(items => this.setState({ items }));
+    }
+  }
 
   componentDidUpdate(prevProps, prevState) {
     const { searchQuery } = this.state;
